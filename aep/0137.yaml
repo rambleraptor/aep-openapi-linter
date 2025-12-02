@@ -1,0 +1,115 @@
+aliases:
+  ApplyOperation:
+    description: An Apply method is a put on path that ends in a path parameter
+    targets:
+      - formats: ['oas2', 'oas3']
+        given:
+          - $.paths[?(@property.match(/\}$/))].put
+
+rules:
+  aep-137-operation-id:
+    description: The operation ID should be Apply{resource-singular}.
+    message: The operation ID does not conform to AEP-137
+    severity: error
+    formats: ['oas2', 'oas3']
+    given: '#ApplyOperation'
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          properties:
+            operationId:
+              type: string
+              pattern: '^[Aa][Pp][Pp][Ll][Yy].*$'
+          required: ['operationId']
+
+  aep-137-request-body:
+    description: A standard Apply method must accept the resource in the request body.
+    message: The request body is not an AEP resource.
+    severity: error
+    formats: ['oas3']
+    given: '#ApplyOperation'
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: ['requestBody']
+          properties:
+            requestBody:
+              # I tried putting this schema is a separate file and $ref'ing it, but it didn't work
+              description: A content object with an AEP resource schema.
+              type: object
+              required: ['content']
+              properties:
+                content:
+                  type: object
+                  additionalProperties:
+                    type: object
+                    required: ['schema']
+                    properties:
+                      schema:
+                        type: object
+                        required: ['x-aep-resource']
+
+  aep-137-required-params:
+    description: A standard Apply method must not have any required parameters other than path parameters.
+    severity: error
+    formats: ['oas2', 'oas3']
+    given:
+      - '#ApplyOperation.parameters[?(@.in != "path")]'
+      - '#ApplyOperation^.parameters[?(@.in != "path")]' # parameters at path item level
+    then:
+      field: required
+      function: falsy
+
+  aep-137-response-body:
+    description: The success response for a standard Apply method must be the AEP resource.
+    message: The response body is not an AEP resource.
+    severity: error
+    formats: ['oas3']
+    given: '#ApplyOperation'
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: ['responses']
+          properties:
+            responses:
+              type: object
+              # don't require a 200 response, since it's possible to have a 202
+              properties:
+                '200':
+                  description: A content object with an AEP resource schema.
+                  type: object
+                  required: ['content']
+                  properties:
+                    content:
+                      type: object
+                      additionalProperties:
+                        type: object
+                        required: ['schema']
+                        properties:
+                          schema:
+                            type: object
+                            required: ['x-aep-resource']
+
+  aep-137-unknown-optional-params:
+    description: A standard Apply method should not have unknown optional parameters.
+    severity: warn
+    formats: ['oas2', 'oas3']
+    given:
+      - '#ApplyOperation.parameters[?(@.in == "query")]' # only check query parameters
+      - '#ApplyOperation^.parameters[?(@.in == "query")]' # parameters at path item level
+    then:
+      # Use schema function on name so that the error points to the name field
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          properties:
+            name:
+              # Apply has no defined optional parameters
+              enum: [null]

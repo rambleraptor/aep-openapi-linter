@@ -1,10 +1,28 @@
 extends:
   - spectral:oas
+  - ./aep/0004.yaml
+  - ./aep/0122.yaml
+  - ./aep/0131.yaml
   - ./aep/0132.yaml
+  - ./aep/0133.yaml
+  - ./aep/0134.yaml
   - ./aep/0135.yaml
+  - ./aep/0136.yaml
+  - ./aep/0137.yaml
+  - ./aep/0140.yaml
+  - ./aep/0142.yaml
+  - ./aep/0143.yaml
+  - ./aep/0144.yaml
+  - ./aep/0151.yaml
+  - ./aep/0158.yaml
+  - ./aep/0193.yaml
 functionsDir: './functions'
 functions:
+  - aep-142-time-field-type
   - parameter-names-unique
+  - operations-endpoint
+  - standardized-codes
+  - request-body-required
 rules:
   openapi-tags: off
   operation-tags: off
@@ -13,8 +31,7 @@ rules:
   # use "info" rather than "hint".
 
   aep-parameter-names-unique:
-    description:
-      All parameter names for an operation should be case-insensitive unique.
+    description: All parameter names for an operation should be case-insensitive unique.
     message: '{{error}}'
     severity: warn
     formats: ['oas2', 'oas3']
@@ -24,11 +41,9 @@ rules:
 
   aep-request-body-optional:
     description: Flag optional request body -- common oversight.
-    message: The body parameter is not marked as required.
+    message: '{{error}}'
     severity: info
     formats: ['oas3']
-    given:
-      - $.paths[*].[put,post,patch].requestBody
+    given: $.paths[*]
     then:
-      field: required
-      function: truthy
+      function: request-body-required

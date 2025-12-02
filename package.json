@@ -14,9 +14,11 @@
     "url": "https://github.com/aep-dev/aep-openapi-linter"
   },
   "devDependencies": {
-    "@stoplight/spectral-core": "^1.15.1",
-    "@stoplight/spectral-ruleset-migrator": "^1.9.0",
-    "@stoplight/spectral-rulesets": "^1.14.1",
+    "@jest/globals": "^29.7.0",
+    "@stoplight/spectral-core": "^1.20.0",
+    "@stoplight/spectral-parsers": "^1.0.5",
+    "@stoplight/spectral-ruleset-migrator": "^1.11.1",
+    "@stoplight/spectral-rulesets": "^1.21.3",
     "ajv": "^8.6.2",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -40,5 +42,8 @@
       "^nimma/(.*)": "<rootDir>/node_modules/nimma/dist/cjs/$1",
       "^@stoplight/spectral-ruleset-bundler/(.*)$": "<rootDir>/node_modules/@stoplight/spectral-ruleset-bundler/dist/$1"
     }
+  },
+  "dependencies": {
+    "@stoplight/spectral-functions": "^1.10.1"
   }
 }
